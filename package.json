@@ -1,0 +1,17 @@
+{
+  "name": "agarmans",
+  "description": "anagram API",
+  "version": "0.0.1",
+  "private": true,
+  "scripts":{
+    "test": "ruby ./test/anagram_test.rb"
+  },
+  "engines": {
+    "node": "4.5.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "4.x",
+    "mongodb": "^2.2.26"
+  }
+}
