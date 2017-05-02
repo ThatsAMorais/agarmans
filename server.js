@@ -7,7 +7,7 @@ var express = require('express'),
 var app = express();
 
 var ObjectID = mongodb.ObjectID;
-app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.json({limit: '50mb'})); // support (large) json encoded bodies
 
 // Create a database variable outside of the database connection callback to reuse the connection pool
 global.db = null;

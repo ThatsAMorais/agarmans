@@ -12,7 +12,11 @@ class AnagramClient
   end
 
   def build_uri(path, query=nil)
-    URI::HTTP.new('http', nil, @host, @port, nil, path, nil, query, nil)
+    if @port === "noport"
+      URI::HTTP.new('http', nil, @host, nil, nil, path, nil, query, nil)
+    else
+      URI::HTTP.new('http', nil, @host, @port, nil, path, nil, query, nil)
+    end
   end
 
   def post(path, query=nil, body=nil)
