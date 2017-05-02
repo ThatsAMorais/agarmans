@@ -53,6 +53,7 @@ exports.deleteWord = function(req, res) {
                 res.status(500).send('Failed to delete the word: ' + word)
             }
             else {
+                // Remove the document if there are no words in it
                 if(result.value == null || result.value.words.length == 0) {
                     db.collection('anagrams').remove({_id: result._id})
                 }

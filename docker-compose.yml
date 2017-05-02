@@ -5,11 +5,11 @@ mongo:
   ports:
     - "27017:27017"
     
-# agarmans:
-#   build: .
-#   links:
-#     - mongo
-#   ports:
-#     - "3000:3000"
-#   environment:
-#     - MONGODB_URI=mongodb://mongo/agarmans
+agarmans:
+  build: .
+  links:
+    - mongo
+  ports:
+    - "3000:3000"
+  environment:
+    - MONGODB_URI=mongodb://mongo/agarmans
