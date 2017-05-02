@@ -3,22 +3,35 @@
 agarmans is an API built on Node that serves anagrams. One anagram of "anagrams" is "Agar Mans", thus the name.
 
 ## design overview ##
+
 Express.js, which is built on Node.js, provides the MVC architecture to the server. With it one can create a server with a couple lines of code; its super easy.
 
 The application code itself consists of the server.js which creates the express application and defines various mappings of verbs and URLs to their corresponding service method.
 
 These service methods are split into files by endpoint, such as anagrams.js and words.js, for clarity and proximity. They read from and write to MongoDB, which maps words to their anagrams as a persistent key-value store.
 
-The anagram API documentation describes the endpoints, thoroughly.
+The approach is to insert the words provided to the `words` API into a key/value store according to the letters they contain, which gives us all of the single-word anagrams for free. The `anagrams` API, given a word, pulls the word's sorted-letters key from the key-value store, filters it out, and returns this result.
+
+I ran out of time to implement the recursion-based algorithm required to calculate multi-word anagrams in queries. See `future work` for how I would approach that. The question in doing this is how lazily it is calculated. If there are words being added to the corpus frequently, then recalculating the entire anagram store could be time consuming by brute force. Even if not, does one calculate multi-word anagrams by request, or setup a task queue to iterate through the corpus regularly?   
 
 ## quick start ##
 
-### have docker ###
-docker build -t ibotta/agarmans .
+The application is hosted on heroku at TODO
+So please point the ruby tests at this host.
 
-docker run -d --name agarmans -p 3000:3000 ibotta/agarmans
-
-### dont have docker ###
+Feel free to pull the code, but executing locally requires a few installations...
+- Install Node.js  
+- Install Docker (docker-machine or Docker for Mac) 
+- Pull the repo's master from Github  
+- set MONGODB_URI='mongodb://<your-docker-ip>:27017/agarmans/' (localhost *may* work, but did not for me)  
+- Open two shell windows  
+- In the first, `cd` to agarmans
+- mkdir /data/db  
+- Execute `docker-compose up mongo`, which should start the MongoDB container
+- In the second, `cd` to agarmans  
+- Execute `npm install`
+- Execute `npm start`
+- Run the Ruby test script (against localhost)
 
 ## technology ##
   
@@ -36,37 +49,45 @@ Heroku was chosen for hosting the API because it has comprehensive documentation
 I built a docker image of the service for easy test running, which are written in Ruby. Containerization saves developers' time and reduces the complexity of local development by not forcing developers to recreate the habitat of the application locally.
 
 ### trade-offs ###
+
 - Redis might have been a good choice for the key-value store for a simple project. Using Redis in this way was even regarded as [fast](https://www.terlici.com/2015/06/15/redis-node-express.html "smart"). This is clearly for the fact that Redis is decent at [persistence](https://redis.io/topics/persistence "persistence"). Yet, MongoDB was a more recognizable solution.
 - Could have written the API in Python and Flask because I have a background in Python. However, the only place where adopting it is helpful would be in writing the anagram backend logic. Whereas, everything else about the API is no more difficult than (or as much fun as) using Node.js.
 - Heroku is of course not the only choice for hosting a Node.js service. Amazon, and Google App Engine all support it. All offer a free and painless solution for deploying Node applications. I had always wanted to dive deeper into Heroku so I chose it, but it is not clear what would be the cheapest solution.
 - Express.js is currently the most popular web application framework, which is why it was chosen, but there is also Koa and Hapi. Koa touts being more enjoyable to write and having a smaller footprint. Hapi is obsessed with "configuration over code." The differences are subtle but I chose Express for the large user base to ensure access to helpful tutorials.
 
-## anagram numbers ##
+## anagram meta-data ##
+
 This [site](http://www.manythings.org/anagrams/) provides great information about English language anagrams:  
 - there are only around 651 common words which have one word anagrams, most only having 1, the highest number being 3-4.  
 - There are, however, millions of proper nouns, and they are likely to account for hundreds, maybe thousands, of additional anagrams, depending on the language with which they are compared.  
-- The longest single word anagrams are around 17, i.e. basiparachromatin = marsipobranchiata  
-- the most common number of anagrams sharing a combination of letters  
+- The longest single word anagrams are around 17, i.e. basiparachromatin = marsipobranchiata
 
 ## story ##
 
 I set out to build this API using technology that was fitting for the task. Taking all of the requirements under consideration, I planned the endpoints with documentation. I felt it best to deploy this where it could be accessed without local installation so I chose a fitting cloud-based host. I also determined what technology, tools, and libraries would be needed to ensure the success of the service, and aid my development of it. Most of the contents of this document are the result of that process.
 
-Then, I tested boilerplate capabilities of the technologies on which I would rely to prove their straight-forwardness and that I had arranged the necessary support. So, I installed Node.js, NPM, MongoDB, etc, stubbed the various endpoints I had documented into the Express.js service, ran the Node server locally, ran the tests locally for the first time, pushed the first Github PR, deployed the app into my Heroku pipeline, and even tested building a docker image of the service. Its much easier to debug behavior when staging and testing infrastructure is in place, so that is what I sought to achieve.
+Then, I tested boilerplate capabilities of the technologies on which I would rely to prove their straight-forwardness and that I had arranged the necessary support. I started by installing Node.js, NPM, MongoDB, etc, stubbed the various endpoints I had documented into the Express.js service, ran the Node server locally, ran the tests locally for the first time, pushed the first Github PR, deployed the app into my Heroku pipeline, and even tested building a docker image of the service. None of it worked, but its much easier to debug behavior when staging and testing infrastructure is in place, so that is what I sought to achieve.
 
-Finally, I had a clear path to implement the "anagrams" and "words" APIs. Visual Studio Code's native Node.js debug support came in handy. Containerizing my service helped ensure that the project is testable on any machine. I personally like using docker for running tests more than keeping my local environment's dependencies up-to-date constantly.
+Finally, I had a clear path to implement the "anagrams" and "words" APIs. Visual Studio Code's native Node.js debug support came in handy.
 
-The optional work I took on was limited by the time I had available to work on it, but I chose features that I thought could be accomplished and that 
+The optional work I took on was limited by the time I had available to work on it, but I chose features that I thought would bring value to users.
 
 ## edge cases ##
 
 
 ## future work ##
+
+### multi-word anagrams ###
+Single word anagrams are fairly easy, especially since we get this for free by properly inserting the data into the right document hash. Finding multiple word anagrams for a set of letters requires walking through a tree of possible letter sets, the depth of which is equal to the length of the letter-set. For example "anagram" would be divided into [["a", "nagram"], ["an" "agram"], etc for every combination. If both sides of the branch produce a word (or word combination) then they are bubbled up to be paired with the "other" branch on the level above. Therefore, many sub-anagrams would be calculated. I would recommend divide and conquer via recursion, and store valid sub-anagrams directly into the lazy anagrams storage.
+
+### proper-noun distinction ###
+Any proper nouns would have to be declared in the POST /words.json body to be that, probably with a different json structure. Otherwise, they would have to be inferred from the use of capital letters. Proper nouns could also be stored as a separate list in the set of anagrams for a given word so that its trivial to exclude them when needed.
+
 ### metrics ###
 Any live service should be monitored, so I would like to see metrics added to track the performance of the service, backend, the amount of traffic each endpoint receives. Alerts sent to my phone when the metrics are unhealthy are also useful so that I can ensure the service doesn't stay offline for long, if ever.
 
-### frontend client ###
-An app or client could be made to expose this API to users.
+### abstracted MongoDB error handling ###
+Rather than defining lambda callbacks with each interaction, it brings consistency to the API's responses to handle them as uniformly as possible. 
 
-### proper noun distinction ###
-Any proper nouns would have to be declared in the POST /words.json body to be that, probably with a different json structure. Otherwise, they would have to be inferred from the use of capital letters. Proper nouns should also be stored as a separate list in the set of anagrams for a given word so that its trivial to exclude them when needed.
+### improve POST /words.json ###
+It is fine for small lists of words, but enormous lists of words take some time to process. The solutions range from using MongoDb's BulkOp to offloading to an external queue consumed by a microservice. However, the return on investment is low because rebuilding the entire corpus should not happen often (except in tests with smaller datasets).
