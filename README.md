@@ -22,10 +22,6 @@ I implemented the following optional extensions to the service.
 
 Because of the way the data is organized this feature was easy; simply remove the document corresponding to the word's sorted letter string. This is demonstrated in the tests and the Postman collection
 
-#### meta-data ####
-
-In the hopes of facilitating more tracking of "counts", "max", "min", and other data about the anagram store
-
 ## quick start ##
 
 The application is hosted on heroku at: https://agarmans.herokuapp.com/
@@ -86,6 +82,9 @@ The optional work I took on was limited by the time I had available to work on i
 ### multi-word anagrams ###
 Single word anagrams are fairly easy, especially since we get this for free by properly inserting the data into the right document hash. Finding multiple word anagrams for a set of letters requires walking through a tree of possible letter sets, the depth of which is equal to the length of the letter-set. For example "anagram" would be divided into [["a", "nagram"], ["an" "agram"], etc for every combination. If both sides of the branch produce a word (or word combination) then they are bubbled up to be paired with the "other" branch on the level above. Therefore, many sub-anagrams would be calculated. I would recommend divide and conquer via recursion, and store valid sub-anagrams directly into the lazy anagrams storage.
 
+### moar meta-data ###
+Being able to query information about anagrams would bring a high value to users who want more than just anagrams to be calculated. It offers insights into the data being stored that is not obvious from simply querying a word's anagrams.
+
 ### proper-noun distinction ###
 Any proper nouns would have to be declared in the POST /words.json body to be that, probably with a different json structure. Otherwise, they would have to be inferred from the use of capital letters. Proper nouns could also be stored as a separate list in the set of anagrams for a given word so that its trivial to exclude them when needed.
 
@@ -97,3 +96,7 @@ Rather than defining lambda callbacks with each interaction, it brings consisten
 
 ### improve POST /words.json ###
 It is fine for small lists of words, but enormous lists of words take some time to process. The solutions range from using MongoDb's BulkOp to offloading to an external queue consumed by a microservice. However, the return on investment is low because rebuilding the entire corpus should not happen often (except in tests with smaller datasets).
+
+## Thank you ##
+
+Thank you for taking the time to look at my work! I enjoyed learning about this technology, and understanding the requirements, to bring this product to you. 
