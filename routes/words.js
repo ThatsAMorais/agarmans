@@ -34,7 +34,7 @@ exports.add = function(req, res) {
                 }
             })
     }
-    res.status(201).json({count: wordsAdded})
+    res.sendStatus(201)
 }
 
 /*
@@ -53,12 +53,10 @@ exports.deleteWord = function(req, res) {
                 res.status(500).send('Failed to delete the word: ' + word)
             }
             else {
-                var words = result.value.words
-                // If the document is now empty, remove that letter-key from the corpus
-                if(words.length == 0) {
+                if(result.value == null || result.value.words.length == 0) {
                     db.collection('anagrams').remove({_id: result._id})
                 }
-                res.status(200).json("OK")
+                res.sendStatus(200)
             }
         })
 }
@@ -69,12 +67,7 @@ exports.deleteWord = function(req, res) {
 exports.deleteCorpus = function(req, res) {
     db.collection('anagrams').remove({},
      function(err, result) {
-         if(err) {
-            res.status(500).send('Failed to delete the corpus')
-         }
-         else {
-            res.status(204).json('No Content')
-         }
+         res.sendStatus(204)
      })
 }
 
