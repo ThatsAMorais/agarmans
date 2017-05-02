@@ -92,7 +92,7 @@ app.delete('/words.json', words.deleteCorpus);
  * @apiGroup anagrams
  * 
  * @apiParam word  the word for which anagrams will be generated
- * @apiParam max  Optional. the maximum number of results to return
+ * @apiParam limit  Optional. the maximum number of results to return
  * 
  * @apiDescription Returns a JSON array of English-language words that are anagrams of the word passed in the URL.
  *
@@ -107,4 +107,24 @@ app.delete('/words.json', words.deleteCorpus);
  *          "anagrams": [ "dear", "dare" ] 
  *      }
  */
-app.get('/anagrams/:word.json', anagrams.read);
+app.get('/anagrams/:word.json', anagrams.get);
+
+/**
+ * @api {DELETE} /anagrams/:word
+ * @apiName DeleteAnagrams
+ * @apiGroup anagrams
+ * 
+ * @apiParam word  the word for which anagrams will be generated
+ * 
+ * @apiDescription Removes a word from the corpus along with its anagrams
+ *
+ * @apiSampleRequest /anagrams/read.json
+ * 
+ * @apiExample cURL example
+ * $ curl -i -X DELETE http://localhost:3000/anagrams/read.json
+ * 
+ * @apiSuccessExample {js} Success-Response:
+ *      HTTP/1.1 204 No Content
+ */
+app.delete('/anagrams/:word.json', anagrams.delete);
+

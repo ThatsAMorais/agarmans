@@ -1,6 +1,10 @@
 var utils = require('./utils')
 
-exports.read = function(req, res) {
+/*
+ * Get anagrams for a word.
+ * Currently only supports single-word anagrams
+ */
+exports.get = function(req, res) {
     var limit = req.query.limit
     db.collection('anagrams').findOne(
         {key: utils.getWordKey(req.params.word)},
@@ -12,8 +16,6 @@ exports.read = function(req, res) {
                     return 0 != word.localeCompare(req.params.word)
                 })
 
-                // TODO: Calculate multi-word anagrams
-
                 // Clip the result to the limit
                 if(limit > 0) {
                     anagrams = anagrams.slice(0, limit)
@@ -21,4 +23,13 @@ exports.read = function(req, res) {
             }
             res.status(200).json({'anagrams': anagrams})
         })
+}
+
+/*
+ * Deletes a word and its anagrams
+ */
+exports.delete = function(req, res) {
+    // Remove the entire document from the collection corresponding to this word
+    db.collection('anagrams').remove({key: utils.getWordKey(req.params.word)})
+    res.sendStatus(204)
 }
