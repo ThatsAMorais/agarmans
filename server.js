@@ -10,7 +10,7 @@ var ObjectID = mongodb.ObjectID;
 app.use(bodyParser.json()); // support json encoded bodies
 
 // Create a database variable outside of the database connection callback to reuse the connection pool
-var db;
+global.db = null;
 // Setup the mongodb callback
 mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
   if (err) {
@@ -29,7 +29,6 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
   });
 });
 
-
 // Route configuration below
 
 /**
@@ -47,7 +46,7 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
  * @apiSuccessExample {js} Success-Response:
  *      HTTP/1.1 201 CREATED
  */
-app.post('/words', words.add);
+app.post('/words.json', words.add);
 
 /**
  * @api {DELETE} /words/:word
@@ -66,7 +65,7 @@ app.post('/words', words.add);
  * @apiSuccessExample {js} Success-Response:
  *      HTTP/1.1 200 OK
  */
-app.delete('/words/:word', words.deleteWord);
+app.delete('/words/:word.json', words.deleteWord);
 
 /**
  * @api {DELETE} /words
@@ -85,7 +84,7 @@ app.delete('/words/:word', words.deleteWord);
  * @apiSuccessExample {js} Success-Response:
  *      HTTP/1.1 204 No Content
  */
-app.delete('/words', words.deleteCorpus);
+app.delete('/words.json', words.deleteCorpus);
 
 /**
  * @api {GET} /anagrams/:word
@@ -108,4 +107,4 @@ app.delete('/words', words.deleteCorpus);
  *          "anagrams": [ "dear", "dare" ] 
  *      }
  */
-app.get('/anagrams/:word', anagrams.read);
+app.get('/anagrams/:word.json', anagrams.read);
