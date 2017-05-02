@@ -10,28 +10,37 @@ The application code itself consists of the server.js which creates the express 
 
 These service methods are split into files by endpoint, such as anagrams.js and words.js, for clarity and proximity. They read from and write to MongoDB, which maps words to their anagrams as a persistent key-value store.
 
-The approach is to insert the words provided to the `words` API into a key/value store according to the letters they contain, which gives us all of the single-word anagrams for free. The `anagrams` API, given a word, pulls the word's sorted-letters key from the key-value store, filters it out, and returns this result.
+The approach is to insert the words provided to the `words` API into a key/value store according to the letters they contain, which gives us all of the single-word anagrams upon insertion. The `anagrams` API, given a word, pulls the word's sorted-letters key from the key-value store, filters it out, and returns this result.
 
-I ran out of time to implement the recursion-based algorithm required to calculate multi-word anagrams in queries. See `future work` for how I would approach that. The question in doing this is how lazily it is calculated. If there are words being added to the corpus frequently, then recalculating the entire anagram store could be time consuming by brute force. Even if not, does one calculate multi-word anagrams by request, or setup a task queue to iterate through the corpus regularly?   
+I ran out of time to implement the recursion-based algorithm required to calculate multi-word anagrams in queries. See `future work` for how I would approach that.
+
+### optional work ###
+
+I implemented the following optional extensions to the service.
+
+#### delete word + anagrams ####
+
+Because of the way the data is organized this feature was easy; simply remove the document corresponding to the word's sorted letter string. This is demonstrated in the tests and the Postman collection
+
+#### meta-data ####
+
+In the hopes of facilitating more tracking of "counts", "max", "min", and other data about the anagram store
 
 ## quick start ##
 
-The application is hosted on heroku at TODO
-So please point the ruby tests at this host.
+The application is hosted on heroku at: https://agarmans.herokuapp.com/
 
-Feel free to pull the code, but executing locally requires a few installations...
-- Install Node.js  
-- Install Docker (docker-machine or Docker for Mac) 
-- Pull the repo's master from Github  
-- set MONGODB_URI='mongodb://<your-docker-ip>:27017/agarmans/' (localhost *may* work, but did not for me)  
-- Open two shell windows  
-- In the first, `cd` to agarmans
-- mkdir /data/db  
-- Execute `docker-compose up mongo`, which should start the MongoDB container
-- In the second, `cd` to agarmans  
-- Execute `npm install`
-- Execute `npm start`
-- Run the Ruby test script (against localhost)
+And this Postman collection has all the API calls for this service: https://www.getpostman.com/collections/7a6eae3805b21386db43
+The `{{agarmans}}` var maps to the heroku URL above if you use an environment. Feel free to simply replace that with the above URL
+
+### docker ###
+If you have docker installed, it should be possible to run the tests like:
+```
+ruby .\test\anagram_test.rb -- -n $DOCKER_IP
+```
+Or point the test client to `<YOUR_DOCKER_IP>` in a ruby shell
+
+You can even use the Postman collection above, just replace `{{agarmans}}` with `<YOUR_DOCKER_IP>:3000`.
 
 ## technology ##
   
@@ -71,9 +80,6 @@ Then, I tested boilerplate capabilities of the technologies on which I would rel
 Finally, I had a clear path to implement the "anagrams" and "words" APIs. Visual Studio Code's native Node.js debug support came in handy.
 
 The optional work I took on was limited by the time I had available to work on it, but I chose features that I thought would bring value to users.
-
-## edge cases ##
-
 
 ## future work ##
 
