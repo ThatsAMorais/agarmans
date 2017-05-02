@@ -115,4 +115,19 @@ class TestCases < Test::Unit::TestCase
 
     assert_equal(['dare'], body['anagrams'])
   end
+
+  def test_deleting_anagrams
+    res = @client.delete('/anagrams/read.json')
+
+    assert_equal('204', res.code, "Unexpected response code")
+
+    # should fetch an empty body
+    res = @client.get('/anagrams/dear.json')
+
+    assert_equal('200', res.code, "Unexpected response code")
+
+    body = JSON.parse(res.body)
+
+    assert_equal(0, body['anagrams'].size)
+  end
 end
