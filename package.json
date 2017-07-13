@@ -7,7 +7,7 @@
     "test": "ruby ./test/anagram_test.rb"
   },
   "engines": {
-    "node": "4.5.0"
+    "node": "4.8.4"
   },
   "dependencies": {
     "body-parser": "^1.17.1",

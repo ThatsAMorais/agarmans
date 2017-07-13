@@ -38,3 +38,5 @@ jspm_packages
 
 # Visual Studio Code project directory
 .vscode
+
+apidocs/*
